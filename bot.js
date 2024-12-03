@@ -1,11 +1,14 @@
 const { MatrixClient, SimpleFsStorageProvider, AutojoinRoomsMixin, RichReply } = require("matrix-bot-sdk");
 const express = require("express");
 const bodyParser = require("body-parser");
+const https = require("https");
+const fs = require("fs");
 require('dotenv').config();
 
 // Configuración
-const homeserverUrl = process.env.HOMESERVER_URL || "https://chat.grupolabe.com"; // URL de tu servidor Matrix
-const accessToken = process.env.ACCESS_TOKEN || "syt_bGVhZHM_XfapJbcqBxSzaSMPvTsz_3c40US"; // Token de acceso del bot
+const PORT = process.env.PORT || 443;
+const HOMESERVER_URL = process.env.HOMESERVER_URL || "https://chat.grupolabe.com"; // URL de tu servidor Matrix
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN || "syt_bGVhZHM_XfapJbcqBxSzaSMPvTsz_3c40US"; // Token de acceso del bot
 
 // Mapeo de sectores a roomIds
 const sectorRooms = {
@@ -18,7 +21,7 @@ const sectorRooms = {
     "Otra": "!euZFfwZDrbEaCVUyXZ:chat.grupolabe.com"
 };
 
-const client = new MatrixClient(homeserverUrl, accessToken);
+const client = new MatrixClient(HOMESERVER_URL, ACCESS_TOKEN);
 
 // Auto-join a las salas designadas
 AutojoinRoomsMixin.setupOnClient(client);
@@ -105,10 +108,15 @@ client.start().then(() => {
     console.log("Bot iniciado");
 });
 
-// Iniciar el servidor Express
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Servidor escuchando en el puerto ${PORT}`);
+// Configurar HTTPS
+const sslOptions = {
+    key: fs.readFileSync('/etc/letsencrypt/live/chat.grupolabe.com/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/chat.grupolabe.com/fullchain.pem')
+};
+
+// Iniciar el servidor HTTPS
+https.createServer(sslOptions, app).listen(PORT, () => {
+    console.log(`Servidor HTTPS escuchando en el puerto ${PORT}`);
 });
 
 // Gestión de Leads (en memoria para pruebas)
