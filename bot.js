@@ -1,6 +1,7 @@
 const { MatrixClient, SimpleFsStorageProvider, AutojoinRoomsMixin, RichReply } = require("matrix-bot-sdk");
 const express = require("express");
 const bodyParser = require("body-parser");
+require('dotenv').config();
 
 // Configuración
 const homeserverUrl = process.env.HOMESERVER_URL || "https://chat.grupolabe.com"; // URL de tu servidor Matrix
